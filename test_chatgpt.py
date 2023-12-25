@@ -1,8 +1,3 @@
-import os
-os.environ['OPENAI_BASE_URL'] = "http://localhost:8000/openai"
-os.environ['OPENAI_API_KEY'] = "WHATEVER_PLACEHOLDER"
-
-
 from openai import OpenAI
 client = OpenAI()
 
