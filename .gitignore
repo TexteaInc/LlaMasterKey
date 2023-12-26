@@ -1,2 +1,3 @@
-lla-master-key.json
 *.env
+.idea
+.vscode

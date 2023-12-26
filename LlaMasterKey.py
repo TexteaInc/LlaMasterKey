@@ -15,32 +15,9 @@ class Config:
     cohere_api_key: Optional[str] = None
 
     def __init__(self):
-        _config: dict = {}
-        config_path = "lla-master-key.json"
-        if os.path.exists(config_path):
-            try:
-                with open(config_path, "r") as file:
-                    _config = pyjson5.load(file)
-            except pyjson5.Json5Exception as e:
-                print(f"Failed to load JSON config from {config_path}: {e.message}")
-                exit(1)
-
-        base_url = os.environ.get("BASE_URL")
-        if base_url is None:
-            base_url = _config.get("BASE_URL")
-        if base_url is None:
-            base_url = "http://127.0.0.1:8000"
-        self.base_url = base_url
-
-        openai_api_key = os.environ.get("OPENAI_API_KEY")
-        if openai_api_key is None:
-            openai_api_key = _config.get("OPENAI_API_KEY")
-        self.openai_api_key = openai_api_key
-
-        cohere_api_key = os.environ.get("CO_API_KEY")
-        if cohere_api_key is None:
-            cohere_api_key = _config.get("CO_API_KEY")
-        self.cohere_api_key = cohere_api_key
+        self.base_url = os.environ.get("BASE_URL", default="http://127.0.0.1:8000")
+        self.openai_api_key = os.environ.get("OPENAI_API_KEY")
+        self.cohere_api_key = os.environ.get("CO_API_KEY")
 
 
 def generate_env(_dict: dict[str, str]) -> str:
