@@ -8,13 +8,14 @@ This is when LlaMasterKey (pronounced as "La Master key" which stands for "Llama
 
 ## Roadmap 
 
-1. Currently no master key is enabled. We will add authentication. This is important for the response from a cloud LLM/GenAI endpoint to be returned to the right team/customer.
-2. More cloud LLM/GenAI endpoints will be supported. **Currently supports only `OpenAI/chat/completion`**. Planned support  in the next 1-2 weeks: 
-   * AnyScale 
+1. Currently no master key is enabled. We will add authentication. 
+2. More cloud LLM/GenAI endpoints will be supported. This is the status: 
+   * OpenAI/chat/completion: Done 
+   * Cohere/chat: in-progress
+   * AnyScale
    * HuggingFace
    * Anthropic
    * Google Vertex AI
-   * Cohere
    * Vectara AI
 
 ## Usage
@@ -23,6 +24,7 @@ This is when LlaMasterKey (pronounced as "La Master key" which stands for "Llama
 
    ```bash
    export OPENAI_API_KEY=sk-xxx #openai
+   export CO_API_KEY=co-xxx # cohere
    export HF_API_KEY=hf-xxx # huggingface
    export ANYSCALE_API_KEY=as-xxx # anyscale
    export ANTHROPIC_API_KEY=an-xxx # anthropic
