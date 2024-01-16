@@ -13,6 +13,7 @@ class Config:
     openai_api_key: Optional[str] = None
     cohere_api_key: Optional[str] = None
     anyscale_api_key: Optional[str] = None
+    huggingface_api_key: Optional[str] = None
 
     def __init__(self):
         """
@@ -22,6 +23,7 @@ class Config:
         self.openai_api_key = os.environ.get("OPENAI_API_KEY")
         self.cohere_api_key = os.environ.get("CO_API_KEY")
         self.anyscale_api_key = os.environ.get("ANYSCALE_API_KEY")
+        self.huggingface_api_key = os.environ.get("HF_TOKEN")
 
     def user_env(self) -> dict[str, str]:
         """
@@ -37,6 +39,9 @@ class Config:
         if self.anyscale_api_key:
             _user_env["ANYSCALE_BASE_URL"] = self.base_url
             _user_env["ANYSCALE_API_KEY"] = "anyscale"
+        if self.huggingface_api_key:
+            _user_env["HF_INFERENCE_ENDPOINT"] = self.base_url
+            _user_env["HF_TOKEN"] = "huggingface"
 
         return _user_env
 
@@ -67,7 +72,10 @@ app = FastAPI()
 client = httpx.AsyncClient()
 
 
-@app.api_route("/{path:path}", methods=["GET", "POST"])
+@app.api_route(
+    "/{path:path}",
+    methods=["GET", "POST", "HEAD", "DELETE", "PUT", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
+)
 async def catch_all(request: Request, path: str, response: Response):
     authorization = request.headers.get("authorization")
     if authorization is None:
@@ -89,7 +97,8 @@ async def catch_all(request: Request, path: str, response: Response):
             return await __reverse_proxy(request, "https://api.cohere.ai", config.cohere_api_key)
         case "anyscale":
             return await __reverse_proxy(request, "https://api.endpoints.anyscale.com/v1", config.anyscale_api_key)
-
+        case "huggingface":
+            return await __reverse_proxy(request, "https://api-inference.huggingface.co", config.huggingface_api_key)
         case _:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return response
