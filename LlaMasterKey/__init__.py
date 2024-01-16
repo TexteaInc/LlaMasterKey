@@ -114,3 +114,9 @@ async def __reverse_proxy(request: Request, new_url: str, bearer_key: str):
         headers=rp_resp.headers,
         background=BackgroundTask(rp_resp.aclose),
     )
+
+
+def start():
+    import uvicorn
+    base_url = urlparse(config.base_url)
+    uvicorn.run(app, host=base_url.hostname, port=base_url.port)
