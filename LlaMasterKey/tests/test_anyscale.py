@@ -10,7 +10,7 @@ client = openai.OpenAI(
 chat_completion = client.chat.completions.create(
     model="meta-llama/Llama-2-7b-chat-hf",
     messages=[{"role": "system", "content": "You are a helpful assistant."},
-              {"role": "user", "content": "Say 'Test'."}],
+              {"role": "user", "content": "Who is Einstein?"}],
     temperature=0.7
 )
 print(chat_completion.model_dump())
