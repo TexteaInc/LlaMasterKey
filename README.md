@@ -102,7 +102,7 @@ def query(payload):
 output = query({
    "inputs": "Меня зовут Вольфганг и я живу в Берлине",
 })
-``
+```
 
 ## License
 
