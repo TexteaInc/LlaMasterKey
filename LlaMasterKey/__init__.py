@@ -1,11 +1,26 @@
+import json
 import os
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 import httpx
 from fastapi import FastAPI, Request, Response, status
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
+
+
+class VectaraToken:
+    customer_id: str
+    client_id: str
+    client_secret: str
+
+    def __init__(self, customer_id: str, client_id: str, client_secret: str):
+        self.customer_id = customer_id
+        self.client_id = client_id
+        self.client_secret = client_secret
+
+    def is_valid(self) -> bool:
+        return self.customer_id is not None and self.client_id is not None and self.client_secret is not None
 
 
 class Config:
@@ -14,6 +29,7 @@ class Config:
     cohere_api_key: Optional[str] = None
     anyscale_api_key: Optional[str] = None
     huggingface_api_key: Optional[str] = None
+    vectara_token: Optional[VectaraToken] = None
 
     def __init__(self):
         """
@@ -24,6 +40,11 @@ class Config:
         self.cohere_api_key = os.environ.get("CO_API_KEY")
         self.anyscale_api_key = os.environ.get("ANYSCALE_API_KEY")
         self.huggingface_api_key = os.environ.get("HF_TOKEN")
+        self.vectara_token = VectaraToken(
+            customer_id=os.environ.get("VECTARA_CUSTOMER_ID"),
+            client_id=os.environ.get("VECTARA_CLIENT_ID"),
+            client_secret=os.environ.get("VECTARA_CLIENT_SECRET")
+        )
 
     def user_env(self) -> dict[str, str]:
         """
@@ -42,6 +63,12 @@ class Config:
         if self.huggingface_api_key:
             _user_env["HF_INFERENCE_ENDPOINT"] = self.base_url
             _user_env["HF_TOKEN"] = "huggingface"
+        if self.vectara_token.is_valid():
+            _user_env["VECTARA_CUSTOMER_ID"] = "vectara-customer"
+            _user_env["VECTARA_CLIENT_ID"] = "vectara-client"
+            _user_env["VECTARA_CLIENT_SECRET"] = "vectara-secret"
+            _user_env["VECTARA_BASE_URL"] = self.base_url + "/vectara"
+            _user_env["VECTARA_PROXY_MODE"] = "true"
 
         return _user_env
 
@@ -70,6 +97,29 @@ print("Please run bash command `source generated-keys.env` for easy key manageme
 app = FastAPI()
 
 client = httpx.AsyncClient()
+
+
+@app.api_route(
+    path="/vectara/{path:path}",
+    methods=["GET", "POST", "HEAD", "DELETE", "PUT", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
+)
+async def catch_vectara_all(request: Request, path: str, response: Response):
+    if path == "oauth2/token":
+        modified_payload = f"grant_type=client_credentials&client_id={config.vectara_token.client_id}&client_secret={config.vectara_token.client_secret}"
+
+        return await __reverse_proxy(
+            request,
+            f"https://vectara-prod-{config.vectara_token.customer_id}.auth.us-west-2.amazoncognito.com",
+            payload=modified_payload.encode("utf-8"),
+            remove_path="/vectara"
+        )
+    else:
+        return await __reverse_proxy(
+            request,
+            "https://api.vectara.io",
+            customer_id=config.vectara_token.customer_id,
+            remove_path="/vectara"
+        )
 
 
 @app.api_route(
@@ -104,17 +154,43 @@ async def catch_all(request: Request, path: str, response: Response):
             return response
 
 
-async def __reverse_proxy(request: Request, new_url: str, bearer_key: str):
+async def __reverse_proxy(
+    request: Request,
+    new_url: str,
+    bearer_key: Optional[str] = None,
+    payload: Optional[bytes] = None,
+    customer_id: Optional[str] = None,
+    remove_path: Optional[str] = None
+):
     parsed_url = urlparse(new_url)
-    url = httpx.URL(url=f"{parsed_url.scheme}://{parsed_url.netloc}", path=parsed_url.path + request.url.path,
-                    query=request.url.query.encode("utf-8"))
+    query = request.url.query
+    if customer_id and query:
+        query = parse_qs(query)
+        query["c"] = [customer_id]
+        query = "&".join([f"{k}={v[0]}" for k, v in query.items()])
+    request_path = request.url.path
+    if remove_path is not None:
+        request_path = request_path.replace(remove_path, "")
+    new_path = parsed_url.path + request_path
+    url = httpx.URL(url=f"{parsed_url.scheme}://{parsed_url.netloc}", path=parsed_url.path + new_path,
+                    query=query.encode("utf-8"))
     headers = request.headers.mutablecopy()
     headers["host"] = parsed_url.netloc
-    headers["authorization"] = f"Bearer {bearer_key}"
+    if bearer_key is not None:
+        headers["authorization"] = f"Bearer {bearer_key}"
 
-    rp_req = client.build_request(request.method, url,
-                                  headers=headers.raw,
-                                  content=request.stream())
+    if customer_id is not None:
+        headers["customer-id"] = customer_id
+
+    if payload is not None:
+        del headers["content-length"]
+        rp_req = client.build_request(request.method, url,
+                                      headers=headers.raw,
+                                      content=payload, timeout=None)
+    else:
+        rp_req = client.build_request(request.method, url,
+                                      headers=headers.raw,
+                                      content=request.stream(), timeout=None)
     rp_resp = await client.send(rp_req, stream=True)
 
     return StreamingResponse(

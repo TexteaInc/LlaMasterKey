@@ -16,7 +16,7 @@ This is when LlaMasterKey (pronounced as "La Master key" which stands for "Llama
    - [x] HuggingFace Inference API
    - [ ] Anthropic
    - [ ] Google Vertex AI
-   - [ ] Vectara AI
+   - [x] Vectara AI
 
 ## Installation
 
@@ -40,7 +40,10 @@ pip install -e .
    export HF_TOKEN=hf-xxx # huggingface
    export ANYSCALE_API_KEY=as-xxx # anyscale
    export ANTHROPIC_API_KEY=an-xxx # anthropic
-   export VECTOR_AI_API_KEY=va-xxx # vectara
+   # vectara
+   export VECTARA_CUSTOMER_ID=xxxx
+   export VECTARA_CLIENT_ID=xxxx
+   export VECTARA_CLIENT_SECRET=xxxx
    ```
 
 2. Start your LlaMasterKey server
