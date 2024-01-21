@@ -60,6 +60,8 @@ pip install -e .
    source generated-keys.env
    ```
 
+   If the environment variable for a cloud service does not exist, then we will not generate the corresponding keys.
+
 4. Make requests to the cloud LLM/GenAI endpoint as usual.
 
    For example, `test_chatgpt.py` in `tests` is a client request.
