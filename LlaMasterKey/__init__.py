@@ -68,7 +68,6 @@ class Config:
             _user_env["VECTARA_CLIENT_ID"] = "vectara-client"
             _user_env["VECTARA_CLIENT_SECRET"] = "vectara-secret"
             _user_env["VECTARA_BASE_URL"] = self.base_url + "/vectara"
-            _user_env["VECTARA_PROXY_MODE"] = "true"
 
         return _user_env
 
