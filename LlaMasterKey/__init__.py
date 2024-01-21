@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request, Response, status
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
+local_configure_file = "llamakey_local.env"
 
 class VectaraToken:
     customer_id: str
@@ -89,9 +90,12 @@ class Config:
 
 user_env: dict[str, str] = dict()
 config = Config()
-with open("generated-keys.env", "w") as f:
+with open(local_configure_file, "w") as f:
     f.write(config.user_env_file())
-print("Please run bash command `source generated-keys.env` for easy key management.")
+print (f"Please tell your clients to set the following environment variables before running their code using the Python SDK of OpenAI/Cohere/etc.:\n{config.user_env_file()}")
+print(f"For convenience, the shell command to set such environment variables are written to `./{local_configure_file}`. Simply run `source {local_configure_file}` activate them.")
+print (f"For example, \n `source {local_configure_file} && python3 -c \"import openai; openai.Completion.create(...)\"`" )
+# BUG: Why is this message printed twice? 
 
 app = FastAPI()
 
