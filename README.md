@@ -1,35 +1,39 @@
-# LlamaKey: An LLM/GenAI proxy for API key protection and management 
+# LlaMaKey: one master key for accessing all cloud LLM/GenAI APIs
+
+Introducing LlaMa(ster)Key, the simplified and secure way to manage API keys and control the access to various cloud LLM/GenAI APIs for multiple users. LlaMaKey enables a user to access multiple cloud AI APIs through a single, user-unique master key, instead of a bunch of API keys, one for each platform. As a proxy, it eases key management for both the user and the administrator by consolidating the keys distributed to a user to just one while enhancing the protection of the actual API keys by hiding them from the user. Major cloud AI APIs (OpenAI, Cohere, AnyScale, etc.) can be seamlessly called in their official Python SDKs without any code changes. In addition, administrators can control individual users in detail through rate throttling, API/endpoint whitelisting, budget capping, etc. LlaMaKey is open source under MIT license and is ready for private, on-premises deployment. 
 
 ```mermaid
 graph TD
    subgraph Your team
-     A[User A] -- Local key A --> L[LlaMasterKey server]
-     B[User B] -- Local key B --> L["LlaMasterKey server<br> (rate limit, API/endpoint whitelist, <br> logging, budgetting, etc.)"]
+     A[User A] -- Local pass A --> L[LlaMasterKey server]
+     B[User B] -- Local pass B --> L["LlaMasterKey server<br> (rate throttling, API/endpoint whitelisting, <br> logging, budgetting, etc.)"]
    end 
     L -- Actual OPENAI_API_KEY--> O[OpenAI API server]
     L -- Actual COHERE_API_KEY--> C[Cohere API server]
     L -- Actual VECTARA_API_KEY--> V[Vectara API server]
 ```
 
-* Easy for your team/users/customers: Just run a few commands to set the `BASE_URL` and `KEY` environment variables that the official Python SDKs of most cloud LLM/GenAI APIs (OpenAI, Cohere, HuggingFace, etc.) read in. No need to change a single line of code.
-* Hide and protect the actual API keys from your team members and customers. 
-* Control and track your users: set up rate limits, whitelist APIs and endpoints, control budget, and log usage.
-* Open source, supporting local/on-premise deployment.
-
+## The pain and the solution
 How do you manage the API keys in a team needing to access an array of cloud LLM/GenAI APIs?
 If you get one key per user per API, then you have too many keys to manage.
 But if you share the key per API, then it is too risky. What if your careless intern accidentally pushes it to a public Github repo?
 
-This is when LlamaKey comes to play. It is a proxy that dispatches the requests to the real cloud LLM/GenAI endpoints and returns the responses to your team. To authenticate, only one key is needed between your team member's code and your LlamaKey server. If any of them makes you unhappy, just revoke one key to cut him/her loss without interrupting others. 
+This is when LlamaKey comes to play. It is a proxy between your users and the actual cloud AI API. To authenticate, only one key is needed between your team member's code and your LlamaKey server. If any of them makes you unhappy, just revoke one key to cut him/her loss without interrupting others. 
 
-Your users do not need to change a single line of code, if they use the official Python-SDK of the API providers. They just need to set `BASE_URL` to your LlamaKey server. Then they can use the cloud LLM/GenAI APIs as usual. All endpoints are supported. 
+A user does not need to change a single line of code to use LlaMaKey. 
+LlaMaKey takes advantage of a feature in the official Python SDKs of most cloud LLM/GenAI APIs that each of them has a `BASE_URL` which is configurable in the environment variables: 
+* `OPENAI_BASE_URL` for OpenAI
+* `CO_API_URL` for Cohere
+* `ANYSCALE_BASE_URL` for AnyScale
+
+So the user only needs to set the respectively `BASE_URL` to the LlaMaKey server. Then the request is first make to a LlaMaKey server, which then forwards it to the real cloud LLM/GenAI endpoint.
 
 ## Roadmap
 
-1. Currently authentication with the LlamaKey server is not enabled. If you want us to support it, please open an issue on Github.
-2. Supported APIs (if we support an API, then all endpoints of it are supported):
-   - [x] OpenAI
-   - [x] Cohere
+1. Currently, authentication with the LlaMaKey server is not enabled. If you want us to support it, please open an issue on Github. We will see it as a demand and prioritize it accordingly.
+2. Supported APIs:
+   - [x] OpenAI (all endpoints)
+   - [x] Cohere (all endpoints)
    - [x] AnyScale
    - [x] HuggingFace Inference API (free tier)
    - [ ] HuggingFace EndPoint API
@@ -61,28 +65,29 @@ pip install -e .
 
 ## Usage
 
-**On the server end**, set up the API keys on the LlamaKey server side and start your LlamaKey server: 
+**On the server end**, set up the actual API keys in the environment variable per their respective APIs and start your LlaMaKey server, for example:
 ```bash
-export OPENAI_API_KEY=sk-xxx #openai
+export OPENAI_API_KEY=sk-xxx # an actual openai key
 
 lmk # start the server
 ```
 
-The server will read keys of supported LLM/GenAI APIs set in the OS environment variables and start a server at `http://localhost:8000` (8000 is the default port of FastAPI). It will generate the command to activate certain environment variables on your client end, like this:
+The server will read keys of supported LLM/GenAI APIs from the OS environment variables and start a server at `http://localhost:8000` (8000 is the default port of FastAPI). It will generate the shell command to activate certain environment variables on your client end, like this:
 
 ```bash
-export OPENAI_BASE_URL="http://127.0.0.1:8000" # direct OpenAI calls to the LlamaKey server
-export OPENAI_API_KEY="openai" # a fake key. the real key needs not to be known by the client 
+export OPENAI_BASE_URL="http://127.0.0.1:8000" # direct OpenAI calls to the LlaMaKey server
+export OPENAI_API_KEY="openai" # a fake key. No need for a real OpenAI key. 
 ```
 
-For your convinience, the commands are also dumped to the  file`./llamakey_local.env` in the current directory.
+For your convenience, the commands are also dumped to the file`./llamakey_local.env`.
 
-**On the client end**, activate the environment variables generated above before running your code. You can copy and paste the commands above or simply source the `llamakey_local.env` file generated in the previous step like below: 
+**On the client end**, activate the environment variables generated above before running your code. You can copy and paste the commands above or simply source the `llamakey_local.env` file generated in the previous step, for example: 
 
 ```bash
-source llamakey_local.env # one way to activate them 
+# step 1: activate the environment variables that directs the API calls to the LlaMaKey server
+source llamakey_local.env # this is only one of many ways to do it.
 
-# Call OpenAI as usual using its offical Python SDK
+# Step 2: Call OpenAI as usual using its offical Python SDK
 python3 -c '\
 from openai import OpenAI; 
 client = OpenAI(); 
@@ -92,51 +97,6 @@ print (\
     messages=[{"role": "user", "content": "What is FastAPI?"}]
   )
 )'
-```
-
-## How does it work? 
-
-It's as simple as setting a few environment variables. 
-We take advantage of a feature in the official Python SDKs of most cloud LLM/GenAI APIs that they allow configuring a `BASE_URL` in the environment variables. So just set the `BASE_URL` to our LlamaKey server. No need to change a single line of code. Such `BASE_URL`s are: `OPENAI_BASE_URL`, `CO_API_URL`, `ANYSCALE_BASE_URL`, `HF_INFERENCE_ENDPOINT`, etc.    
-
-
-### For HuggingFace
-
-If you work through `huggingface_hub.InferenceClient()` it works fine. But if you are working through `requests` like:
-
-```python
-import requests
-
-API_URL = "https://api-inference.huggingface.co/models/t5-small"
-headers = {"Authorization": "Bearer **********"}
-
-def query(payload):
-   response = requests.post(API_URL, headers=headers, json=payload)
-   return response.json()
-
-output = query({
-   "inputs": "Меня зовут Вольфганг и я живу в Берлине",
-})
-```
-
-You need to change the `API_URL` to `os.environ["HF_INFERENCE_ENDPOINT"] + "/models/t5-small"`, and change the `Authorization` header to `os.environ["HF_TOKEN"]`.
-
-For example, if you want to use the `t5-small` model, you can do:
-
-```python
-import os
-import requests
-
-API_URL = f"{os.environ['HF_INFERENCE_ENDPOINT']}/models/t5-small"
-headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
-
-def query(payload):
-   response = requests.post(API_URL, headers=headers, json=payload)
-   return response.json()
-
-output = query({
-   "inputs": "Меня зовут Вольфганг и я живу в Берлине",
-})
 ```
 
 ## License
