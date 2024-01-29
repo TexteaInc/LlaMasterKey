@@ -17,18 +17,18 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "httpx",
-    "fastapi",
-    "starlette",
-    "uvicorn",
+    "fire"
 ]
 
 [build-system]
 requires = ["setuptools>=40.8.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = ["llamakey"]
+
 [project.urls]
 homepage = "https://github.com/TexteaInc/LlaMasterKey"
 
 [project.scripts]
-lmk = "LlaMasterKey.__init__:start"
+lmkc = "llamakey.__init__:__main__"
