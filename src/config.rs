@@ -47,30 +47,40 @@ impl Config {
   /// Get a list of env vars for user
   pub fn user_env(&self) -> Vec<(String, String)> {
     let mut user_env = Vec::new();
+    let placeholder = String::from("LlaMaKey");
     if self.openai_api_key.is_some() {
-      user_env.push(("OPENAI_BASE_URL".into(), self.base_url.clone()));
-      user_env.push(("OPENAI_API_KEY".into(), "openai".into()));
+      user_env.push((
+        "OPENAI_BASE_URL".into(),
+        format!("{}/openai", self.base_url),
+      ));
+      user_env.push(("OPENAI_API_KEY".into(), placeholder.clone()));
     }
     if self.cohere_api_key.is_some() {
-      user_env.push(("CO_API_URL".into(), self.base_url.clone()));
-      user_env.push(("CO_API_KEY".into(), "cohere".into()));
+      user_env.push(("CO_API_URL".into(), format!("{}/cohere", self.base_url)));
+      user_env.push(("CO_API_KEY".into(), placeholder.clone()));
     }
     if self.anyscale_api_key.is_some() {
-      user_env.push(("ANYSCALE_BASE_URL".into(), self.base_url.clone()));
-      user_env.push(("ANYSCALE_API_KEY".into(), "anyscale".into()));
+      user_env.push((
+        "ANYSCALE_BASE_URL".into(),
+        format!("{}/anyscale", self.base_url),
+      ));
+      user_env.push(("ANYSCALE_API_KEY".into(), placeholder.clone()));
     }
     if self.huggingface_api_key.is_some() {
-      user_env.push(("HF_INFERENCE_ENDPOINT".into(), self.base_url.clone()));
-      user_env.push(("HF_TOKEN".into(), "huggingface".into()));
+      user_env.push((
+        "HF_INFERENCE_ENDPOINT".into(),
+        format!("{}/huggingface", self.base_url),
+      ));
+      user_env.push(("HF_TOKEN".into(), placeholder.clone()));
     }
     if self.vectara_token.is_some() {
       user_env.push((
         "VECTARA_BASE_URL".into(),
         format!("{}/vectara", self.base_url),
       ));
-      user_env.push(("VECTARA_CUSTOMER_ID".into(), "vectara-customer".into()));
-      user_env.push(("VECTARA_CLIENT_ID".into(), "vectara-client".into()));
-      user_env.push(("VECTARA_CLIENT_SECRET".into(), "vectara-secret".into()));
+      user_env.push(("VECTARA_CUSTOMER_ID".into(), placeholder.clone()));
+      user_env.push(("VECTARA_CLIENT_ID".into(), placeholder.clone()));
+      user_env.push(("VECTARA_CLIENT_SECRET".into(), placeholder.clone()));
     }
 
     user_env

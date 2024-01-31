@@ -32,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
   let service = Router::new()
     .route("/lmk/env", routing::get(lmk_env))
     .route("/vectara/*path", routing::any(vectara))
-    .route("/*path", routing::any(catch_all))
+    .route("/:llm/*path", routing::any(catch_all))
     .layer(CompressionLayer::new())
     .layer(RequestBodyLimitLayer::new(512 * 1024 * 1024))
     .with_state(state.clone())
@@ -148,7 +148,6 @@ pub async fn vectara(
 
   // rewrite query
   if let Some(mut query) = query {
-    dbg!(&query);
     rewrite_query(&mut query, "c", &token.customer_id);
 
     if path == "oauth2/token" {
@@ -159,7 +158,6 @@ pub async fn vectara(
     let query = serde_urlencoded::to_string(query).ok().unwrap_or_default();
 
     if is_body {
-      dbg!(&query);
       *request.body_mut() = Body::from(query);
     } else {
       let path = uri.path();
@@ -177,23 +175,29 @@ pub async fn vectara(
   reverse_proxy(&state.hyper_client, request, url, None, Some("/vectara")).await
 }
 
-pub async fn catch_all(State(state): ServerState, request: Request<Body>) -> Response {
-  let Some(auth) = request.headers().get("authorization") else {
-    return (StatusCode::BAD_REQUEST, "No `Authorization` header").into_response();
-  };
-  let Some((auth_type, auth_value)) = auth.to_str().ok().and_then(|auth| auth.split_once(' '))
-  else {
-    return (StatusCode::BAD_REQUEST, "Invalid `Authorization` header").into_response();
-  };
-  if !auth_type.eq_ignore_ascii_case("bearer") {
-    return (
-      StatusCode::BAD_REQUEST,
-      "Invalid `Authorization` header, expected bearer token",
-    )
-      .into_response();
-  }
+pub async fn catch_all(
+  State(state): ServerState,
+  Path((llm, _path)): Path<(String, String)>,
+  request: Request<Body>,
+) -> Response {
+  // TODO: custom authenticate
 
-  let (url, key) = match auth_value {
+  // let Some(auth) = request.headers().get("authorization") else {
+  //   return (StatusCode::BAD_REQUEST, "No `Authorization` header").into_response();
+  // };
+  // let Some((auth_type, auth_value)) = auth.to_str().ok().and_then(|auth| auth.split_once(' '))
+  // else {
+  //   return (StatusCode::BAD_REQUEST, "Invalid `Authorization` header").into_response();
+  // };
+  // if !auth_type.eq_ignore_ascii_case("bearer") {
+  //   return (
+  //     StatusCode::BAD_REQUEST,
+  //     "Invalid `Authorization` header, expected bearer token",
+  //   )
+  //     .into_response();
+  // }
+
+  let (url, key) = match llm.as_str() {
     "openai" => (
       Uri::from_static("https://api.openai.com/v1"),
       &state.config.openai_api_key,
@@ -220,7 +224,14 @@ pub async fn catch_all(State(state): ServerState, request: Request<Body>) -> Res
       .into_response();
   };
 
-  reverse_proxy(&state.hyper_client, request, url, Some(key), None).await
+  reverse_proxy(
+    &state.hyper_client,
+    request,
+    url,
+    Some(key),
+    Some(&format!("/{llm}")),
+  )
+  .await
 }
 
 async fn reverse_proxy(
@@ -240,6 +251,7 @@ async fn reverse_proxy(
         Some(PathAndQuery::from_str(&path.as_str().replace(remove_path, "")).unwrap())
     }
   }
+
   if !uri.path().is_empty() {
     let mut new_path = uri.path().to_string();
     if let Some(path) = &uri_parts.path_and_query {
@@ -263,7 +275,7 @@ async fn reverse_proxy(
 
   request.headers_mut().remove("content-length");
 
-  match client.request(dbg!(request)).await {
+  match client.request(request).await {
     Ok(resp) => resp.into_response(),
     Err(err) => (
       StatusCode::BAD_GATEWAY,
