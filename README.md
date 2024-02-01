@@ -53,7 +53,9 @@ pip install LLaMasterKey
 
 Nightly version:
 
-> Currently not available
+You can manually install the nightly version at:
+
+<https://github.com/TexteaInc/LlaMasterKey/releases/tag/nightly>
 
 ## Build from source
 
