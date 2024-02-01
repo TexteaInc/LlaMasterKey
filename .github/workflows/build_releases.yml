@@ -1,0 +1,94 @@
+name: "build releases"
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      branch:
+        description: "The branch to build"
+        default: "main"
+        required: false
+        type: string
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: 0
+
+jobs:
+  build-binaries:
+    name: "Build binaries"
+    runs-on: ${{ matrix.info.os }}
+    container: ${{ matrix.info.container }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        info:
+          # ======= Supported targets =======
+          # Linux x64
+          - {
+              os: "ubuntu-latest",
+              target: "x86_64-unknown-linux-gnu",
+              cross: false,
+              generate-other-artifacts: true,
+            }
+
+          # macOS x64, aarch64
+          - { os: "macos-latest", target: "x86_64-apple-darwin", cross: false }
+          - { os: "macos-latest", target: "aarch64-apple-darwin", cross: true }
+
+          # Windows x64
+          - {
+              os: "windows-latest",
+              target: "x86_64-pc-windows-msvc",
+              cross: false,
+            }
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@4
+        with:
+          fetch-depth: 1
+          ref: ${{ inputs.branch }}
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@1
+        with:
+          toolchain: ${{ matrix.info.rust || 'stable' }}
+          target: ${{ matrix.info.target }}
+
+      - name: Build
+        uses: ClementTsang/cargo-action@v0.0.5
+        with:
+          command: build
+          args: --release --verbose --locked --target=${{ matrix.info.target }}
+
+      - name: Bundle release (Windows)
+        if: matrix.info.os == 'windows-latest'
+        shell: bash
+        run: |
+          cp target/${{ matrix.info.target }}/release/lmk.exe lmk.exe
+          7z a bottom_${{ matrix.info.target }}.zip "lmk.exe"
+          echo "ASSET=bottom_${{ matrix.info.target }}.zip" >> $GITHUB_ENV
+
+      - name: Bundle release (Linux and macOS)
+        if: matrix.info.os != 'windows-latest'
+        shell: bash
+        run: |
+          cp target/${{ matrix.info.target }}/release/lmk ./lmk
+          tar -czvf lmk_${{ matrix.info.target }}${{ matrix.info.suffix }}.tar.gz lmk
+          echo "ASSET=lmk_${{ matrix.info.target }}${{ matrix.info.suffix }}.tar.gz" >> $GITHUB_ENV
+
+      - name: Create release directory for artifact, move file
+        shell: bash
+        run: |
+          mkdir release
+          mv ${{ env.ASSET }} release/
+
+      - name: Save release as artifact
+        uses: actions/upload-artifact@4
+        with:
+          retention-days: 3
+          name: "release-${{ matrix.info.target }}${{ matrix.info.suffix }}"
+          path: release
