@@ -47,13 +47,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           ref: ${{ inputs.branch }}
 
       - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@1
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{ matrix.info.rust || 'stable' }}
           target: ${{ matrix.info.target }}
@@ -69,8 +69,8 @@ jobs:
         shell: bash
         run: |
           cp target/${{ matrix.info.target }}/release/lmk.exe lmk.exe
-          7z a bottom_${{ matrix.info.target }}.zip "lmk.exe"
-          echo "ASSET=bottom_${{ matrix.info.target }}.zip" >> $GITHUB_ENV
+          7z a lmk_${{ matrix.info.target }}.zip "lmk.exe"
+          echo "ASSET=lmk_${{ matrix.info.target }}.zip" >> $GITHUB_ENV
 
       - name: Bundle release (Linux and macOS)
         if: matrix.info.os != 'windows-latest'
@@ -87,7 +87,7 @@ jobs:
           mv ${{ env.ASSET }} release/
 
       - name: Save release as artifact
-        uses: actions/upload-artifact@4
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 3
           name: "release-${{ matrix.info.target }}${{ matrix.info.suffix }}"
