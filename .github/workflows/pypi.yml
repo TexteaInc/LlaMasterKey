@@ -175,16 +175,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main # We checkout the main branch to check for the commit
-      - name: Check main branch
-        if: ${{ inputs.sha }}
-        run: |
-          # Fetch the main branch since a shallow checkout is used by default
-          git fetch origin main --unshallow
-          if ! git branch --contains ${{ inputs.sha }} | grep -E '(^|\s)main$'; then
-            echo "The specified sha is not on the main branch" >&2
-            exit 1
-          fi
+          depth: 10
       - name: Check tag consistency
         run: |
           # Switch to the commit we want to release
