@@ -77,7 +77,15 @@ cargo build --release
 **On the server end**, set up the actual API keys in the environment variable per their respective APIs and start your LlaMaKey server, for example:
 
 ```bash
-export OPENAI_API_KEY=sk-xxx # an actual openai key
+export OPENAI_API_KEY=sk-xxx # openai
+export CO_API_KEY=co-xxx # cohere
+export HF_TOKEN=hf-xxx # huggingface
+export ANYSCALE_API_KEY=as-xxx # anyscale
+export ANTHROPIC_API_KEY=an-xxx # anthropic
+# vectara
+export VECTARA_CUSTOMER_ID=xxxx
+export VECTARA_CLIENT_ID=xxxx
+export VECTARA_CLIENT_SECRET=xxxx
 
 lmk # start the server
 ```
