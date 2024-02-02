@@ -13,6 +13,7 @@ use axum::{
 };
 use config::*;
 use hyper::{header::CONTENT_TYPE, Request, StatusCode, Uri};
+
 use state::{HyperClient, Server, ServerState};
 use tokio::net::TcpListener;
 use tower_http::{compression::CompressionLayer, limit::RequestBodyLimitLayer};
@@ -253,7 +254,12 @@ async fn reverse_proxy(
   }
 
   if !uri.path().is_empty() {
-    let mut new_path = uri.path().to_string();
+    let mut new_path = uri
+      .path()
+      .to_string()
+      .strip_suffix("/")
+      .unwrap_or_default()
+      .to_string();
     if let Some(path) = &uri_parts.path_and_query {
       new_path = format!("{new_path}{path}");
     }
