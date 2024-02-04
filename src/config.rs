@@ -1,3 +1,5 @@
+use strum::{Display, EnumIter};
+
 fn get_env(key: &'static str) -> Option<String> {
   match std::env::var(key) {
     Ok(env) => Some(env),
@@ -8,6 +10,15 @@ fn get_env(key: &'static str) -> Option<String> {
       },
     },
   }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, EnumIter, Display)]
+pub enum ModelEndpoint {
+  OpenAI,
+  Cohere,
+  Anyscale,
+  HuggingFace,
+  Vectara,
 }
 
 #[derive(Debug)]
@@ -33,6 +44,28 @@ impl Config {
       huggingface_api_key: get_env("HF_TOKEN"),
       vectara_token: VectaraToken::from_env(),
     }
+  }
+
+  /// Returns currently available endpoints.
+  pub fn available_endpoints(&self) -> Vec<ModelEndpoint> {
+    use ModelEndpoint as E;
+    let mut models = Vec::new();
+    if self.openai_api_key.is_some() {
+      models.push(E::OpenAI);
+    }
+    if self.cohere_api_key.is_some() {
+      models.push(E::Cohere);
+    }
+    if self.anyscale_api_key.is_some() {
+      models.push(E::Anyscale);
+    }
+    if self.huggingface_api_key.is_some() {
+      models.push(E::HuggingFace);
+    }
+    if self.vectara_token.is_some() {
+      models.push(E::Vectara);
+    }
+    models
   }
 
   /// Generate a bash compatible environment exports.

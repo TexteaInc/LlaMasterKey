@@ -1,6 +1,6 @@
-use std::{fs::File, io::Write, sync::Arc};
+use std::{fs::File, io::Write, process::exit, sync::Arc};
 
-use crate::Config;
+use crate::{Config, ModelEndpoint};
 use anyhow::{Context, Ok};
 use axum::extract::State;
 use hyper_rustls::HttpsConnector;
@@ -9,6 +9,7 @@ use hyper_util::{
   rt::TokioExecutor,
 };
 use indoc::formatdoc;
+use strum::IntoEnumIterator;
 
 pub type HyperClient = Client<HttpsConnector<HttpConnector>, axum::body::Body>;
 
@@ -29,6 +30,25 @@ impl Server {
       .with_context(|| format!("Failed to create {local_config_path}"))?
       .write_all(user_env_file.as_bytes())
       .with_context(|| format!("Failed to write envs to {local_config_path}"))?;
+
+    let endpoints = config.available_endpoints();
+    if endpoints.is_empty() {
+      log::error!(
+        "Based on your configuration, no endpoint is available. Please check your environment variables"
+      );
+      exit(1);
+    } else {
+      let mut message = "API endpoints availability:\n".to_string();
+      for endpoint in ModelEndpoint::iter() {
+        if endpoints.contains(&endpoint) {
+          message.push_str(&format!("✓ {endpoint}\n"))
+        } else {
+          message.push_str(&format!("✗ {endpoint}\n"))
+        }
+      }
+      log::info!("{message}");
+    }
+
     let message = formatdoc! { r#"
       Please tell your clients to set the following environment variables before
       running their code using the Python SDK of OpenAI/Cohere/etc.:
