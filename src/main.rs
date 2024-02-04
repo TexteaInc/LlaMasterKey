@@ -254,12 +254,7 @@ async fn reverse_proxy(
   }
 
   if !uri.path().is_empty() {
-    let mut new_path = uri
-      .path()
-      .to_string()
-      .strip_suffix("/")
-      .unwrap_or_default()
-      .to_string();
+    let mut new_path = uri.path().trim_end_matches("/").to_string();
     if let Some(path) = &uri_parts.path_and_query {
       new_path = format!("{new_path}{path}");
     }
