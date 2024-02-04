@@ -70,6 +70,13 @@ git clone git@github.com:TexteaInc/LlaMasterKey.git
 # git switch dev
 cargo build --release
 # available at ./target/release/lmk
+
+# run it without installation
+cargo run
+# you can also install it to system-wide
+cargo install --path .
+# run it
+lmk
 ```
 
 ## Usage
@@ -95,6 +102,16 @@ The server will read keys of supported LLM/GenAI APIs from the OS environment va
 ```bash
 export OPENAI_BASE_URL="http://127.0.0.1:8000/openai" # direct OpenAI calls to the LlaMaKey server
 export OPENAI_API_KEY="LlaMaKey" # a placeholder master key
+export CO_API_URL="http://127.0.0.1:8000/cohere"
+export CO_API_KEY="LlaMaKey"
+export ANYSCALE_BASE_URL="http://127.0.0.1:8000/anyscale"
+export ANYSCALE_API_KEY="LlaMaKey"
+export HF_INFERENCE_ENDPOINT="http://127.0.0.1:8000/huggingface"
+export HF_TOKEN="LlaMaKey"
+export VECTARA_BASE_URL="http://127.0.0.1:8000/vectara"
+export VECTARA_CUSTOMER_ID="LlaMaKey"
+export VECTARA_CLIENT_ID="LlaMaKey"
+export VECTARA_CLIENT_SECRET="LlaMaKey"
 ```
 
 For your convenience, the commands are also dumped to the file`./llamakey_local.env`.
