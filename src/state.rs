@@ -34,7 +34,7 @@ impl Server {
     let endpoints = config.available_endpoints();
     if endpoints.is_empty() {
       log::error!(
-        "Based on your configuration, no endpoint is available. Please check your environment variables"
+        "Based on your configuration, no endpoint is available. Please check your environment variables."
       );
       exit(1);
     } else {
@@ -50,13 +50,13 @@ impl Server {
     }
 
     let message = formatdoc! { r#"
-      Please tell your clients to set the following environment variables before
-      running their code using the Python SDK of OpenAI/Cohere/etc.:
+
+      Please tell your clients to set the following environment variables before running their code using the Python SDK of OpenAI/Cohere/etc.:
+
       {user_env_file}
-      For convenience, the shell command to set such environment variables are
-      written to `{local_config_path}`. Simply run `source {local_config_path}`
-      to activate them.
-      For example:
+
+      For your convenience, the shell commands above are dumped to `{local_config_path}`. 
+      Simply run `source {local_config_path}` on your client end to activate them. For example:
       source {local_config_path} && python3 -c "import openai; openai.Completion.create(...)"
       "#
     };
