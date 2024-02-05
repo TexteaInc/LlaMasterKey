@@ -12,13 +12,64 @@ fn get_env(key: &'static str) -> Option<String> {
   }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, EnumIter, Display)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, EnumIter, Display, Clone, Copy)]
 pub enum ModelEndpoint {
   OpenAI,
   Cohere,
   Anyscale,
   HuggingFace,
   Vectara,
+}
+
+fn masked_string(input: &str) -> String {
+  let len = input.chars().count();
+  if len == 0 {
+    return String::new();
+  }
+  if len <= 9 {
+    let half = ((len as f64) / 2.0).ceil() as usize;
+    format!(
+      "{}{}",
+      input.chars().take(half).collect::<String>(),
+      "*".repeat(len - half)
+    )
+  } else {
+    let start: String = input.chars().take(4).collect();
+    let end: String = input.chars().skip(4).skip(len - 4 * 2).collect();
+    format!("{start}*****{end}")
+  }
+}
+
+impl ModelEndpoint {
+  pub fn base_url(&self) -> &'static str {
+    match self {
+      Self::OpenAI => "https://api.openai.com/v1",
+      Self::Cohere => "https://api.cohere.ai",
+      Self::Anyscale => "https://api.endpoints.anyscale.com/v1",
+      Self::HuggingFace => "https://api-inference.huggingface.co",
+      Self::Vectara => "https://api.vectara.io",
+    }
+  }
+
+  pub fn masked_credentials(&self, config: &Config) -> String {
+    match self {
+      Self::OpenAI => masked_string(&config.openai_api_key.clone().unwrap_or_default()),
+      Self::Cohere => masked_string(&config.cohere_api_key.clone().unwrap_or_default()),
+      Self::Anyscale => masked_string(&config.anyscale_api_key.clone().unwrap_or_default()),
+      Self::HuggingFace => masked_string(&config.huggingface_api_key.clone().unwrap_or_default()),
+      Self::Vectara => {
+        let Some(token) = &config.vectara_token else {
+          return String::new();
+        };
+        format!(
+          "customer_id={}, client_id={}, client_secret={}",
+          masked_string(&token.client_id),
+          masked_string(&token.customer_id),
+          masked_string(&token.client_secret)
+        )
+      },
+    }
+  }
 }
 
 #[derive(Debug)]

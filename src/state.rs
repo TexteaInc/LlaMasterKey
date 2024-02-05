@@ -3,6 +3,7 @@ use std::{fs::File, io::Write, process::exit, sync::Arc};
 use crate::{Config, ModelEndpoint};
 use anyhow::{Context, Ok};
 use axum::extract::State;
+use comfy_table::{presets::UTF8_NO_BORDERS, Cell, ContentArrangement, Row, Table};
 use hyper_rustls::HttpsConnector;
 use hyper_util::{
   client::legacy::{connect::HttpConnector, Client},
@@ -38,15 +39,35 @@ impl Server {
       );
       exit(1);
     } else {
-      let mut message = "API endpoints availability:\n".to_string();
+      let mut available_msg = "API endpoints availability:\n".to_string();
+      let mut table = Table::new();
+      table
+        .load_preset(UTF8_NO_BORDERS)
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_width(100)
+        .set_header(vec![
+          Cell::new("Name"),
+          Cell::new("Base URL"),
+          Cell::new("Credentials"),
+        ]);
+
       for endpoint in ModelEndpoint::iter() {
         if endpoints.contains(&endpoint) {
-          message.push_str(&format!("✓ {endpoint}\n"))
+          table.add_row(Row::from([
+            format!("✓ {endpoint}"),
+            endpoint.base_url().to_string(),
+            endpoint.masked_credentials(&config),
+          ]));
         } else {
-          message.push_str(&format!("✗ {endpoint}\n"))
+          table.add_row(Row::from([
+            format!("✗ {endpoint}"),
+            "-".to_string(),
+            "-".to_string(),
+          ]));
         }
       }
-      log::info!("{message}");
+      available_msg.push_str(&table.to_string());
+      log::info!("{available_msg}");
     }
 
     let message = formatdoc! { r#"

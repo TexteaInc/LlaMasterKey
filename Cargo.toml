@@ -9,6 +9,7 @@ edition = "2021"
 anyhow = "1"
 axum = { version = "0.7", features = ["http2"] }
 axum-auth = "0.7"
+comfy-table = "7.1.0"
 hyper = { version = "1.1", features = ["http1", "http2"] }
 hyper-rustls = { version = "0.26", features = [
   "http1",

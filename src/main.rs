@@ -124,7 +124,7 @@ pub async fn vectara(
     ))
     .expect("Building vectara target url")
   } else {
-    Uri::from_static("api.vectara.io")
+    Uri::from_static(ModelEndpoint::Vectara.base_url())
   };
 
   let (query, is_body) = if request
@@ -200,23 +200,24 @@ pub async fn catch_all(
 
   let (url, key) = match llm.as_str() {
     "openai" => (
-      Uri::from_static("https://api.openai.com/v1"),
+      Uri::from_static(ModelEndpoint::OpenAI.base_url()),
       &state.config.openai_api_key,
     ),
     "anyscale" => (
-      Uri::from_static("https://api.endpoints.anyscale.com/v1"),
+      Uri::from_static(ModelEndpoint::Anyscale.base_url()),
       &state.config.anyscale_api_key,
     ),
     "cohere" => (
-      Uri::from_static("https://api.cohere.ai"),
+      Uri::from_static(ModelEndpoint::Cohere.base_url()),
       &state.config.cohere_api_key,
     ),
     "huggingface" => (
-      Uri::from_static("https://api-inference.huggingface.co"),
+      Uri::from_static(ModelEndpoint::HuggingFace.base_url()),
       &state.config.huggingface_api_key,
     ),
     _ => return (StatusCode::BAD_REQUEST, "Invalid token").into_response(),
   };
+
   let Some(key) = key else {
     return (
       StatusCode::INTERNAL_SERVER_ERROR,
