@@ -1,5 +1,6 @@
+import json
 import os
-import json 
+
 import openai
 
 client = openai.OpenAI(
@@ -12,8 +13,6 @@ chat_completion = client.chat.completions.create(
     messages=[{"role": "user", "content": "Who is Einstein?"}],
 )
 
-print(
-    json.dumps(chat_completion.model_dump(), indent=2)
-)
+print(json.dumps(chat_completion.model_dump(), indent=2))
 
-#print(chat_completion.model_dump())
+# print(chat_completion.model_dump())

@@ -19,6 +19,7 @@ pub enum ModelEndpoint {
   Anyscale,
   HuggingFace,
   Vectara,
+  Perplexity,
 }
 
 fn masked_string(input: &str) -> String {
@@ -48,6 +49,7 @@ impl ModelEndpoint {
       Self::Anyscale => "https://api.endpoints.anyscale.com/v1",
       Self::HuggingFace => "https://api-inference.huggingface.co",
       Self::Vectara => "https://api.vectara.io",
+      Self::Perplexity => "https://api.perplexity.ai",
     }
   }
 
@@ -57,6 +59,7 @@ impl ModelEndpoint {
       Self::Cohere => masked_string(&config.cohere_api_key.clone().unwrap_or_default()),
       Self::Anyscale => masked_string(&config.anyscale_api_key.clone().unwrap_or_default()),
       Self::HuggingFace => masked_string(&config.huggingface_api_key.clone().unwrap_or_default()),
+      Self::Perplexity => masked_string(&config.perplexity_api_key.clone().unwrap_or_default()),
       Self::Vectara => {
         let Some(token) = &config.vectara_token else {
           return String::new();
@@ -80,6 +83,7 @@ pub struct Config {
   pub cohere_api_key: Option<String>,
   pub anyscale_api_key: Option<String>,
   pub huggingface_api_key: Option<String>,
+  pub perplexity_api_key: Option<String>,
   pub vectara_token: Option<VectaraToken>,
 }
 
@@ -93,6 +97,7 @@ impl Config {
       cohere_api_key: get_env("CO_API_KEY"),
       anyscale_api_key: get_env("ANYSCALE_API_KEY"),
       huggingface_api_key: get_env("HF_TOKEN"),
+      perplexity_api_key: get_env("PERPLEXITY_API_KEY"),
       vectara_token: VectaraToken::from_env(),
     }
   }
@@ -112,6 +117,9 @@ impl Config {
     }
     if self.huggingface_api_key.is_some() {
       models.push(E::HuggingFace);
+    }
+    if self.perplexity_api_key.is_some() {
+      models.push(E::Perplexity);
     }
     if self.vectara_token.is_some() {
       models.push(E::Vectara);
@@ -156,6 +164,13 @@ impl Config {
         format!("{}/huggingface", self.base_url),
       ));
       user_env.push(("HF_TOKEN".into(), placeholder.clone()));
+    }
+    if self.perplexity_api_key.is_some() {
+      user_env.push((
+        "PERPLEXITY_BASE_URL".into(),
+        format!("{}/perplexity", self.base_url),
+      ));
+      user_env.push(("PERPLEXITY_API_KEY".into(), placeholder.clone()));
     }
     if self.vectara_token.is_some() {
       user_env.push((

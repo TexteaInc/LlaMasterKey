@@ -215,6 +215,10 @@ pub async fn catch_all(
       Uri::from_static(ModelEndpoint::HuggingFace.base_url()),
       &state.config.huggingface_api_key,
     ),
+    "perplexity" => (
+      Uri::from_static(ModelEndpoint::Perplexity.base_url()),
+      &state.config.perplexity_api_key,
+    ),
     _ => return (StatusCode::BAD_REQUEST, "Invalid token").into_response(),
   };
 
