@@ -26,7 +26,6 @@ Supported APIs:
 * [x] HuggingFace Inference API (free tier)
 * [ ] HuggingFace EndPoint API
 * [ ] Anthropic
-* [ ] Perplexity
 * [ ] Google Vertex AI
 * [x] [Vectara AI](https://vectara.com/)
 * [x] Perplexity AI
