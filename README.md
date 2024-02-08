@@ -22,13 +22,14 @@ But if you share a key among users, then it is prone to risk and hassles. What i
 Supported APIs:
 * [x] OpenAI (all endpoints)
 * [x] Cohere (all endpoints)
-* [x] AnyScale
+* [x] AnyScale (AnyScale API is OpenAI-client compatible)
+* [x] Perplexity AI (AnyScale API is OpenAI-client compatible)
 * [x] HuggingFace Inference API (free tier)
 * [ ] HuggingFace EndPoint API
 * [ ] Anthropic
 * [ ] Google Vertex AI
 * [x] [Vectara AI](https://vectara.com/)
-* [x] Perplexity AI
+
 
 Currently, authentication with the LlaMaKey server is not enabled. All users share the master key `LlaMaKey`. If you want to see it, please [upvote here](https://github.com/TexteaInc/LlaMasterKey/issues/6).
 
@@ -79,7 +80,7 @@ export OPENAI_API_KEY=sk-xxx # openai
 export CO_API_KEY=co-xxx # cohere
 export HF_TOKEN=hf-xxx # huggingface
 export ANYSCALE_API_KEY=credential-xxx # anyscale
-export PERPLEXITY_API_KEY=perplexity # perplexity
+export PERPLEXITY_API_KEY=pplx-xxx # perplexity
 
 lmk # start the server
 ```

@@ -3,7 +3,7 @@ import os
 
 import openai
 
-client = openai.OpenAI(
+client = openai.OpenAI( # AnyScale API is OpenAI client-compatible
     base_url=os.environ["ANYSCALE_BASE_URL"],
     api_key=os.environ["ANYSCALE_API_KEY"],
 )
