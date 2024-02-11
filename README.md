@@ -80,16 +80,16 @@ export ANYSCALE_API_KEY="LlaMaKey"
 export HF_TOKEN="LlaMaKey"
 ```
 
-Such environment variables will direct the API calls to the LlaMaKey server. For your convenience, the commands are also dumped to the file`./llamakey_local.env`.
+Such environment variables will direct the API calls to the LlaMaKey server. For your convenience, the commands are also dumped to the file`./llamakey_client.env`.
 
 ### The client end
 
 Just activate the environment variables generated above and then run your code as usual!
-You may copy and paste the commands above or simply source the `llamakey_local.env` file generated above, for example:
+You may copy and paste the commands above or simply source the `llamakey_client.env` file generated above, for example:
 
 ```bash
 # step 1: activate the environment variables that tell official SDKs to make requests to LlaMaKey server
-source llamakey_local.env
+source llamakey_client.env
 
 # Step 2: Call offical Python SDKs as usual, for example, for OpenAI:
 python3 -c '\
