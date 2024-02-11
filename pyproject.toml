@@ -3,8 +3,8 @@ requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "LlaMasterKey"
-version = "0.1.2"
+name = "llamakey"
+version = "0.1.3"
 authors = [
     { name = "Textea Inc.", email = "bao@textea.co" }
 ]

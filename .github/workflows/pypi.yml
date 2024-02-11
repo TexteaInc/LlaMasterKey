@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PACKAGE_NAME: "LlaMasterKey"
+  PACKAGE_NAME: "llamakey"
   PYTHON_VERSION: "3.10"
   CARGO_INCREMENTAL: 0
   CARGO_NET_RETRY: 10
