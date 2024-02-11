@@ -28,7 +28,7 @@ Supported APIs:
 * [x] OpenAI (all endpoints)
 * [x] Cohere (all endpoints)
 * [x] AnyScale (AnyScale API is OpenAI-client compatible)
-* [x] Perplexity AI (AnyScale API is OpenAI-client compatible)
+* [x] Perplexity AI (Perplexity API is OpenAI-client compatible)
 * [x] HuggingFace Inference API (free tier)
 * [ ] HuggingFace EndPoint API
 * [ ] Anthropic
