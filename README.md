@@ -1,8 +1,8 @@
 # LlaMaKey: one master key for accessing all cloud LLM/GenAI APIs
 
-LlaMa(ster)Key is the simplified and secure way to manage API keys and control the access to various cloud LLM/GenAI APIs for multiple users. 
+LlaMa(ster)Key is the simplified and secure way to manage API keys and control the access to various cloud LLM/GenAI APIs for multiple users.
 
-LlaMaKey enables a user to access multiple cloud AI APIs through **one master key** with **no code change**, using the **official Python SDK** of major cloud AI (OpenAI, Cohere, AnyScale, HuggingFace, Perplexity) APIs still. The master key is unique to each user so that **revoking a user won't affect others**. The actual API keys are hidden to the user to minimize the risk of key leakage. 
+LlaMaKey enables a user to access multiple cloud AI APIs through **one master key** with **no code change**, using the **official Python SDK** of major cloud AI (OpenAI, Cohere, AnyScale, HuggingFace, Perplexity) APIs still. The master key is unique to each user so that **revoking a user won't affect others**. The actual API keys are hidden to the user to minimize the risk of key leakage.
 
 ```mermaid
 graph TD
@@ -16,7 +16,7 @@ graph TD
     L -- Actual HF_API_KEY--> Q[HuggingFace endpoints]
 ```
 
-## Features and Benefits: 
+## Features and Benefits
 
 * **Ease for the user**: The user only needs to know one key -- instead multiple keys in the old way
 * **Ease for the administrator**: Reduce the number of keys to manage and isolate each user's access from others. Revoking or changing one user's access will not affect others.
@@ -24,6 +24,7 @@ graph TD
 * **Granular control (coming)**: Per-user rate throttling, API/endpoint whitelisting, budget capping, etc. via policies. **No more surprising bills.**
 
 Supported APIs:
+
 * [x] OpenAI (all endpoints)
 * [x] Cohere (all endpoints)
 * [x] AnyScale (AnyScale API is OpenAI-client compatible)
@@ -34,23 +35,23 @@ Supported APIs:
 * [ ] Google Vertex AI
 * [x] [Vectara AI](https://vectara.com/)
 
-
 Currently, authentication with the LlaMaKey server is not enabled. All users share the master key `LlaMaKey`. If you want to see it, please [upvote here](https://github.com/TexteaInc/LlaMasterKey/issues/6).
-
-
 
 ## Installation
 
-* Stable version: 
+* Stable version:
+
   ```bash
-  pip install LLaMasterKey
+  pip install llamakey
   ```
+
 * Nightly version: download from [here](https://github.com/TexteaInc/LlaMasterKey/releases/tag/nightly)
 * For building from source, see [Build from source](#build-from-source).
 
 ## Usage
 
 ### The server end
+
 Set up the actual API keys as environment variables per their respective APIs, and then start the server, for example:
 
 ```bash
@@ -67,6 +68,7 @@ lmk # Step 2: start the server
 By default, the server is started at `http://localhost:8000` (8000 is the default port of FastAPI).
 
 Shell commands to activate proper environment variables on your client end will be printed, like this:
+
 ```bash
 export OPENAI_BASE_URL="http://127.0.0.1:8000/openai" # direct OpenAI calls to the LlaMaKey server
 export CO_API_URL="http://127.0.0.1:8000/cohere"
@@ -78,9 +80,11 @@ export CO_API_KEY="LlaMaKey"
 export ANYSCALE_API_KEY="LlaMaKey"
 export HF_TOKEN="LlaMaKey"
 ```
+
 Such environment variables will direct the API calls to the LlaMaKey server. For your convenience, the commands are also dumped to the file`./llamakey_local.env`.
 
-###  The client end
+### The client end
+
 Just activate the environment variables generated above and then run your code as usual!
 You may copy and paste the commands above or simply source the `llamakey_local.env` file generated above, for example:
 
