@@ -2,26 +2,25 @@
 
 LlaMa(ster)Key is the simplified and secure way to manage API keys and control the access to various cloud LLM/GenAI APIs for multiple users.
 
-LlaMaKey enables a user to access multiple cloud AI APIs through **one master key** with **no code change**, using the **official Python SDK** of major cloud AI (OpenAI, Cohere, AnyScale, HuggingFace, Perplexity) APIs still. The master key is unique to each user so that **revoking a user won't affect others**. The actual API keys are hidden to the user to minimize the risk of key leakage.
+LlaMaKey enables a user to access multiple cloud AI APIs through **one virtual master key** using the **official Python SDK** of major cloud AI (OpenAI, Cohere, AnyScale, HuggingFace, Perplexity) APIs with **no code change**. 
+* **Ease for the user**: The user only needs to know one key -- instead multiple keys in the old way. 
+* **Ease for the administrator**
+  - Less work and points of failure -- distribute one key to each user 
+  - Safety for keys. Never risk leaking a key -- real keys are unknown to users 
+  - Revoking a user won't affect others.
 
 ```mermaid
 graph TD
    subgraph Your team
-     A[User 1] -- Master Key 1 --> L["LlaMasterKey server<br> (rate throttling, API/endpoint whitelisting, <br> logging, budgetting, etc.)"]
+     A[User 1] -- Master Key 1 --> L["LlaMasterKey server"]
      B[User 2] -- Master Key 2 --> L
      C[User 100] -- Master Key 100 --> L
    end
-    L -- Actual OPENAI_API_KEY--> O[OpenAI endpoints]
-    L -- Actual CO_API_KEY--> P[Cohere  endpoints]
-    L -- Actual HF_API_KEY--> Q[HuggingFace endpoints]
+    L -- Actual <br> OPENAI_API_KEY --> O[OpenAI <br> endpoints]
+    L -- Actual <br> CO_API_KEY--> P[Cohere <br> endpoints]
+    L -- Actual <br> HF_API_KEY--> Q[HuggingFace  <br>endpoints]
 ```
-
-## Features and Benefits
-
-* **Ease for the user**: The user only needs to know one key -- instead multiple keys in the old way
-* **Ease for the administrator**: Reduce the number of keys to manage and isolate each user's access from others. Revoking or changing one user's access will not affect others.
-* **Safety for the keys**: The actual API keys to authenticate with cloud APIs are hidden from the user. **No more key leakage.**
-* **Granular control (coming)**: Per-user rate throttling, API/endpoint whitelisting, budget capping, etc. via policies. **No more surprising bills.**
+![Usage illustration](assets/screenshot_annotated.png)
 
 Supported APIs:
 
@@ -99,7 +98,7 @@ client = OpenAI();
 print (\
   client.chat.completions.create(\
     model="gpt-3.5-turbo",\
-    messages=[{"role": "user", "content": "What is FastAPI?"}]
+    messages=[{"role": "user", "content": "How hot is the sun?"}]
   )
 )'
 ```

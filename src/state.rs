@@ -26,7 +26,7 @@ impl Server {
   pub fn new() -> anyhow::Result<Self> {
     let config = Config::from_env();
     let user_env_file = config.user_env_file();
-    let local_config_path = "./llamakey_local.env";
+    let local_config_path = "./llamakey_client.env";
     File::create(local_config_path)
       .with_context(|| format!("Failed to create {local_config_path}"))?
       .write_all(user_env_file.as_bytes())
@@ -35,11 +35,11 @@ impl Server {
     let endpoints = config.available_endpoints();
     if endpoints.is_empty() {
       log::error!(
-        "Based on your configuration, no endpoint is available. Please check your environment variables."
+        "No API keys for supported APIs are detected in your environment variables. Please check."
       );
       exit(1);
     } else {
-      let mut available_msg = "API endpoints availability:\n".to_string();
+      let mut available_msg = "\n LlaMaKey server started. API endpoints availability below:\n".to_string();
       let mut table = Table::new();
       table
         .load_preset(UTF8_NO_BORDERS)
@@ -48,14 +48,14 @@ impl Server {
         .set_header(vec![
           Cell::new("Name"),
           Cell::new("Base URL"),
-          Cell::new("Credentials"),
+          Cell::new("Credential"),
         ]);
 
       for endpoint in ModelEndpoint::iter() {
         if endpoints.contains(&endpoint) {
           table.add_row(Row::from([
             format!("✓ {endpoint}"),
-            endpoint.base_url().to_string(),
+            endpoint.base_url().to_string().replace("http://", "").replace("https://", ""),
             endpoint.masked_credentials(&config),
           ]));
         } else {
@@ -72,13 +72,15 @@ impl Server {
 
     let message = formatdoc! { r#"
 
-      Please tell your clients to set the following environment variables before running their code using the Python SDK of OpenAI/Cohere/etc.:
+      On your client end, please run the following commands to set environment variables:
 
       {user_env_file}
-
-      For your convenience, the shell commands above are dumped to `{local_config_path}`. 
-      Simply run `source {local_config_path}` on your client end to activate them. For example:
+      For your convenience, the commands above are dumped to `{local_config_path}`. You may copy it to your client and `source` it. For example:
       source {local_config_path} && python3 -c "import openai; openai.Completion.create(...)"
+
+      Thank you for choosing LlaMaKey! 🦙🔑
+      If you like it, please tell your friends and give us a star at http://llamakey.ai 
+      Otherwise, please let us know how we can improve at hello@llamakey.ai
       "#
     };
     log::warn!("{message}");
