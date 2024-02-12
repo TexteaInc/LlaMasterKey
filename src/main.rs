@@ -28,10 +28,10 @@ async fn main() -> anyhow::Result<()> {
   // ignore errors when loading dotenv
   let _ = dotenvy::dotenv();
 
-  if std::env::var("LLAMA_PASS_LOG").is_err() {
-    std::env::set_var("LLAMA_PASS_LOG", "info");
+  if std::env::var("LMK_LOG").is_err() {
+    std::env::set_var("LMK_LOG", "info");
   }
-  pretty_env_logger::init_custom_env("LLAMA_PASS_LOG");
+  pretty_env_logger::init_custom_env("LMK_LOG");
 
   log::info!("llamakey v{}", VERSION);
 
