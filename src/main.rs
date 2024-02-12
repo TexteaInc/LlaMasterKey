@@ -21,6 +21,8 @@ use tower_http::{compression::CompressionLayer, limit::RequestBodyLimitLayer};
 mod config;
 mod state;
 
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
   // ignore errors when loading dotenv
@@ -30,6 +32,8 @@ async fn main() -> anyhow::Result<()> {
     std::env::set_var("LLAMA_PASS_LOG", "info");
   }
   pretty_env_logger::init_custom_env("LLAMA_PASS_LOG");
+
+  log::info!("llamakey v{}", VERSION);
 
   let state = Arc::new(Server::new().context("Failed to init server state")?);
 
