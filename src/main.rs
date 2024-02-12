@@ -23,6 +23,9 @@ mod state;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+  // ignore errors when loading dotenv
+  let _ = dotenvy::dotenv();
+
   if std::env::var("LLAMA_PASS_LOG").is_err() {
     std::env::set_var("LLAMA_PASS_LOG", "info");
   }
