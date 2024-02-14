@@ -79,8 +79,7 @@ impl Server {
       source {local_config_path} && python3 -c "import openai; openai.Completion.create(...)"
 
       Thank you for choosing LlaMaKey! 🦙🔑
-      If you like it, please tell your friends and give us a star at http://llamakey.ai 
-      Otherwise, please let us know how we can improve at hello@llamakey.ai
+      If you like it, please tell your friends and give us a star at http://llamakey.ai/. Otherwise, let us know how we can improve at hello@llamakey.ai
       "#
     };
     log::warn!("{message}");

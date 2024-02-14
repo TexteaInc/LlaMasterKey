@@ -1,18 +1,19 @@
 # LlaMaKey: one master key for accessing all cloud LLM/GenAI APIs
 
-LlaMa(ster)Key is the simplified and secure way to manage API keys and control the access to various cloud LLM/GenAI APIs for multiple users.
+LlaMaKey is the easy and secure solution for key management of multiple users and multiple cloud LLM/GenAI APIs. 
+LlaMaKey gives each user **one master key** to access multiple cloud AI APIs (OpenAI, Cohere, AnyScale, HuggingFace, Perplexity) through their official SDKs with **no code change** nor knowing the actual API keys. ([How it works](#how-llamakey-works))
 
-LlaMaKey enables a user to access multiple cloud AI APIs through **one virtual master key** using the **official Python SDK** of major cloud AI (OpenAI, Cohere, AnyScale, HuggingFace, Perplexity) APIs with **no code change**. 
-* **Ease for the user**: The user only needs to know one key -- instead multiple keys in the old way. 
-* **Ease for the administrator**
-  - Less work and points of failure -- distribute one key to each user 
-  - Safety for keys. Never risk leaking a key -- real keys are unknown to users 
-  - Revoking a user won't affect others.
+* For each user, one master key for multiple APIs.
+* The master key is unique to each user. Granting and revoking a user's access won't impact other users. 
+* The actual API keys to authenticate with cloud APIs are never known to users. 
+* No code change! Keep using the official Python SDK of the cloud AI APIs.
+
+It solves the pain point of having too many keys to manage for both the user and the administrator and eliminates the risk of key leakage due to user carelessness.
 
 ```mermaid
 graph TD
    subgraph Your team
-     A[User 1] -- Master Key 1 --> L["LlaMasterKey server"]
+     A[User 1] -- Master Key 1 --> L["LlaMaKey server"]
      B[User 2] -- Master Key 2 --> L
      C[User 100] -- Master Key 100 --> L
    end
@@ -20,7 +21,8 @@ graph TD
     L -- Actual <br> CO_API_KEY--> P[Cohere <br> endpoints]
     L -- Actual <br> HF_API_KEY--> Q[HuggingFace  <br>endpoints]
 ```
-![Usage illustration](assets/screenshot_annotated.png)
+
+## Roadmap
 
 Supported APIs:
 
@@ -48,6 +50,8 @@ Currently, authentication with the LlaMaKey server is not enabled. All users sha
 * For building from source, see [Build from source](#build-from-source).
 
 ## Usage
+
+![Usage illustration](assets/screenshot_annotated.png)
 
 ### The server end
 
