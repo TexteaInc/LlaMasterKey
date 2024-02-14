@@ -65,7 +65,7 @@ export HF_TOKEN=hf-xxx # huggingface
 export ANYSCALE_API_KEY=credential-xxx # anyscale
 export PERPLEXITY_API_KEY=pplx-xxx # perplexity
 
-lmk # Step 2: start the server
+llamakey # Step 2: start the server
 ```
 
 By default, the server is started at `http://localhost:8000` (8000 is the default port of FastAPI).
@@ -116,7 +116,7 @@ git clone git@github.com:TexteaInc/LlaMasterKey.git
 # you can switch to a different branch:
 # git switch dev
 cargo build --release
-# binary at ./target/release/lmk
+# binary at ./target/release/llamakey
 
 # run it without installation
 cargo run
@@ -124,7 +124,7 @@ cargo run
 cargo install --path .
 
 # run it
-lmk
+llamakey
 ```
 
 ## How LlaMaKey works
