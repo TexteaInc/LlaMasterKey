@@ -68,17 +68,17 @@ jobs:
         if: matrix.info.os == 'windows-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.info.target }}/release/lmk.exe lmk.exe
-          7z a lmk_${{ matrix.info.target }}.zip "lmk.exe"
-          echo "ASSET=lmk_${{ matrix.info.target }}.zip" >> $GITHUB_ENV
+          cp target/${{ matrix.info.target }}/release/llamakey.exe llamakey.exe
+          7z a llamakey_${{ matrix.info.target }}.zip "llamakey.exe"
+          echo "ASSET=llamakey_${{ matrix.info.target }}.zip" >> $GITHUB_ENV
 
       - name: Bundle release (Linux and macOS)
         if: matrix.info.os != 'windows-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.info.target }}/release/lmk ./lmk
-          tar -czvf lmk_${{ matrix.info.target }}${{ matrix.info.suffix }}.tar.gz lmk
-          echo "ASSET=lmk_${{ matrix.info.target }}${{ matrix.info.suffix }}.tar.gz" >> $GITHUB_ENV
+          cp target/${{ matrix.info.target }}/release/llamakey ./llamakey
+          tar -czvf llamakey_${{ matrix.info.target }}${{ matrix.info.suffix }}.tar.gz llamakey
+          echo "ASSET=llamakey_${{ matrix.info.target }}${{ matrix.info.suffix }}.tar.gz" >> $GITHUB_ENV
 
       - name: Create release directory for artifact, move file
         shell: bash
