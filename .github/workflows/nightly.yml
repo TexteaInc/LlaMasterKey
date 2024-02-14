@@ -33,13 +33,14 @@ jobs:
         run: echo ${{ github.sha }}
 
       - id: should_run
+        continue-on-error: true
         name: check latest commit is less than a day
         if: ${{ github.event_name == 'schedule' }}
         run: |
           echo "${{ github.event.inputs.isMock }}";
           if [[ -z "${{ github.event.inputs.isMock }}" ]]; then
             echo "This is a scheduled nightly run."
-            test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
+            test -z "$(git rev-list --after="24 hours" ${{ github.sha }})" && echo "::set-output name=should_run::false"
           elif [[ "${{ github.event.inputs.isMock }}" == "mock" ]]; then
             echo "This is a mock run."
           else
@@ -48,6 +49,7 @@ jobs:
 
   build-release:
     needs: [initialize-job]
+    if: ${{ needs.initialize-job.outputs.should_run != 'false' }}
     uses: ./.github/workflows/build_releases.yml
     with:
       branch: "dev"
